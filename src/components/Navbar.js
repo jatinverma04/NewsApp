@@ -1,12 +1,11 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({mode, setMode}) => {
 
-  // const setColor = ()=>{
-  //    if(document.body.style.backgroundColor === 'white') document.body.style.backgroundColor = '#343a40';
-  //    else document.body.style.backgroundColor = 'white'
-  // }
+  const setColor = (e)=>{
+      setMode(mode === 'light' ? 'dark' : 'light');
+  }
   
     return (
       <div>
@@ -43,7 +42,7 @@ const Navbar = () => {
       
     </div>
     <div className="form-check form-switch">
-  <input className="form-check-input" type="checkbox" role="switch" id="darkMode" />
+  <input className="form-check-input" type="checkbox" role="switch" id="darkMode" onChange={setColor}/>
   <label className="form-check-label text-light" htmlFor="flexSwitchCheckDefault">Enable Dark Mode</label>
 </div>
   </div>

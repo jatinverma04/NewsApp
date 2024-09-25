@@ -12,7 +12,7 @@ const Newsbox = (props)=> {
 const newsUpdate = async () =>{
   props.setProgress(10);
 
-  let url = `https://newsapi.org/v2/top-headlines?country=in&category=${props.catagory}&apiKey=735a6e71d42d48aeabfcbc3484ba64ef&pagesize=6&page=${page}`;
+  let url = `https://newsapi.org/v2/top-headlines?country=us&category=${props.catagory}&apiKey=735a6e71d42d48aeabfcbc3484ba64ef&pagesize=6&page=${page}`;
   // setPage(page+1);
   let data = await fetch(url);
   props.setProgress(50);
@@ -26,11 +26,11 @@ const newsUpdate = async () =>{
 
   useEffect (()=>{
    newsUpdate();
-  })
+  },[])
 
   
   const fetchMoreData = async () =>{
-    let url = `https://newsapi.org/v2/top-headlines?country=in&category=${props.catagory}&apiKey=735a6e71d42d48aeabfcbc3484ba64ef&pagesize=6&page=${page}`;
+    let url = `https://newsapi.org/v2/top-headlines?country=us&category=${props.catagory}&apiKey=735a6e71d42d48aeabfcbc3484ba64ef&pagesize=6&page=${page}`;
    
    
     let data = await fetch(url);
@@ -43,14 +43,14 @@ const newsUpdate = async () =>{
 
   }
     return (
-      <>
+      <div>
       
 
         <InfiniteScroll dataLength={articles.length} next={fetchMoreData} hasMore={articles.length !==totalResults} loader={<Spinner/>}>
         <div className="row">
           {articles.map((element)=>{
             return (<div className="col-md-4" key={element.url}>
-            <Newsitems title={element.title?element.title:""} description={element.description?element.description:""}  imageUrl = {element.urlToImage} newsUrl={element.url}/>
+            <Newsitems title={element.title?element.title:""} description={element.description?element.description:""}  imageUrl = {element.urlToImage} newsUrl={element.url} mode={props.mode}/>
             </div>
           )})}
         </div>
@@ -60,7 +60,7 @@ const newsUpdate = async () =>{
         <button disabled={this.state.pageNo === 1} className="btn btn-primary" onClick={this.handlePrev}>Previous</button>
         <button className="btn btn-primary" onClick={this.handleNext}>Next</button>
       </div> */}
-      </>
+      </div>
     )
   
 }
