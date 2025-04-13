@@ -1,73 +1,71 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import Newsitems from './Newsitems';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from './Spinner';
 
-const Newsbox = (props)=> {
+const Newsbox = ({ catagory, mode, setProgress }) => {
   const [articles, setArticles] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalResults,setResults] = useState();
- 
-  
-const newsUpdate = async () =>{
-  props.setProgress(10);
+  const [loading, setLoading] = useState(true);
+  const apiKey = '9cd9388c7c4aa28b811e09608fe9ddd3'; // Your API Key
 
-  let url = `https://newsapi.org/v2/top-headlines?country=us&category=${props.catagory}&apiKey=735a6e71d42d48aeabfcbc3484ba64ef&pagesize=6&page=${page}`;
-  // setPage(page+1);
-  let data = await fetch(url);
-  props.setProgress(50);
-  let parseData = await data.json();
-  props.setProgress(70);
-  setResults(parseData.totalResults);
-  setArticles(parseData.articles)
-  props.setProgress(100);
-}
-  
+  const fetchNews = async () => {
+    try {
+      setProgress(10);
+      setLoading(true);
 
-  useEffect (()=>{
-   newsUpdate();
-  },[])
+      const url = `https://gnews.io/api/v4/top-headlines?category=${catagory}&lang=en&country=us&max=10&apikey=${apiKey}`;
+      const res = await fetch(url);
+      setProgress(40);
+      const data = await res.json();
+      setProgress(70);
 
-  
-  const fetchMoreData = async () =>{
-    let url = `https://newsapi.org/v2/top-headlines?country=us&category=${props.catagory}&apiKey=735a6e71d42d48aeabfcbc3484ba64ef&pagesize=6&page=${page}`;
-   
-   
-    let data = await fetch(url);
-    let parseData = await data.json();
-    
+      if (data.articles) {
+        setArticles(data.articles);
+      } else {
+        console.error('API Error:', data);
+      }
 
-    setArticles(articles.concat(parseData.articles))
-    setResults(parseData.totalResults);
-    setPage(page + 1);
+      setLoading(false);
+      setProgress(100);
+    } catch (err) {
+      console.error('Fetch failed:', err);
+    }
+  };
 
-  }
-    return (
-      <div>
-      
+  useEffect(() => {
+    fetchNews();
+    // eslint-disable-next-line
+  }, [catagory]);
 
-        <InfiniteScroll dataLength={articles.length} next={fetchMoreData} hasMore={articles.length !==totalResults} loader={<Spinner/>}>
+  return (
+    <div className="container mt-4">
+      <h2 className={`text-center text-${mode === 'light' ? 'dark' : 'light'}`}>Top Headlines - {catagory.charAt(0).toUpperCase() + catagory.slice(1)}</h2>
+      {loading ? (
+        <Spinner />
+      ) : (
         <div className="row">
-          {articles.map((element)=>{
-            return (<div className="col-md-4" key={element.url}>
-            <Newsitems title={element.title?element.title:""} description={element.description?element.description:""}  imageUrl = {element.urlToImage} newsUrl={element.url} mode={props.mode}/>
-            </div>
-          )})}
+          {Array.isArray(articles) && articles.length > 0 ? (
+            articles.map((article) => (
+              <div className="col-md-4" key={article.url}>
+                <Newsitems
+                  title={article.title || 'No Title'}
+                  description={article.description || 'No Description'}
+                  imageUrl={article.image}
+                  newsUrl={article.url}
+                  mode={mode}
+                />
+              </div>
+            ))
+          ) : (
+            <p className={`text-center text-${mode === 'light' ? 'dark' : 'light'}`}>No articles found.</p>
+          )}
         </div>
-            </InfiniteScroll>
-      
-      {/* <div className="container d-flex justify-content-between">
-        <button disabled={this.state.pageNo === 1} className="btn btn-primary" onClick={this.handlePrev}>Previous</button>
-        <button className="btn btn-primary" onClick={this.handleNext}>Next</button>
-      </div> */}
-      </div>
-    )
-  
-}
+      )}
+    </div>
+  );
+};
 
 Newsbox.defaultProps = {
-  country: 'in',
   catagory: 'general'
-}
+};
 
-export default Newsbox
+export default Newsbox;
