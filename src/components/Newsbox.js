@@ -1,71 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import Newsitems from './Newsitems';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from './Spinner';
 
 const Newsbox = ({ catagory, mode, setProgress }) => {
   const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const apiKey = '9cd9388c7c4aa28b811e09608fe9ddd3'; // Your API Key
+  const [page, setPage] = useState(1);
+  const [totalResults, setResults] = useState(0);
 
-  const fetchNews = async () => {
+  const newsUpdate = async () => {
+    setProgress(10);
+    const url = `https://gnews.io/api/v4/top-headlines?category=${catagory}&lang=en&country=us&max=10&page=${page}&apikey=9cd9388c7c4aa28b811e09608fe9ddd3`;
+
     try {
-      setProgress(10);
-      setLoading(true);
+      let data = await fetch(url);
+      let parseData = await data.json();
+      setProgress(50);
 
-      const url = `https://gnews.io/api/v4/top-headlines?category=${catagory}&lang=en&country=us&max=10&apikey=${apiKey}`;
-      const res = await fetch(url);
-      setProgress(40);
-      const data = await res.json();
-      setProgress(70);
-
-      if (data.articles) {
-        setArticles(data.articles);
-      } else {
-        console.error('API Error:', data);
-      }
-
-      setLoading(false);
+      setResults(parseData.totalResults);
+      setArticles(parseData.articles || []); // Protect against undefined
       setProgress(100);
-    } catch (err) {
-      console.error('Fetch failed:', err);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      setProgress(100);
     }
   };
 
   useEffect(() => {
-    fetchNews();
+    newsUpdate();
     // eslint-disable-next-line
-  }, [catagory]);
+  }, [catagory, page]);
+
+  const fetchMoreData = async () => {
+    setPage(page + 1);
+    const url = `https://gnews.io/api/v4/top-headlines?category=${catagory}&lang=en&country=us&max=10&page=${page + 1}&apikey=9cd9388c7c4aa28b811e09608fe9ddd3`;
+
+    try {
+      let data = await fetch(url);
+      let parseData = await data.json();
+      setArticles(articles.concat(parseData.articles || []));
+      setResults(parseData.totalResults);
+    } catch (error) {
+      console.error('Error fetching more news:', error);
+    }
+  };
 
   return (
-    <div className="container mt-4">
-      <h2 className={`text-center text-${mode === 'light' ? 'dark' : 'light'}`}>Top Headlines - {catagory.charAt(0).toUpperCase() + catagory.slice(1)}</h2>
-      {loading ? (
-        <Spinner />
-      ) : (
+    <div>
+      <InfiniteScroll
+        dataLength={articles.length}
+        next={fetchMoreData}
+        hasMore={articles.length !== totalResults}
+        loader={<Spinner />}
+      >
         <div className="row">
-          {Array.isArray(articles) && articles.length > 0 ? (
-            articles.map((article) => (
-              <div className="col-md-4" key={article.url}>
-                <Newsitems
-                  title={article.title || 'No Title'}
-                  description={article.description || 'No Description'}
-                  imageUrl={article.image}
-                  newsUrl={article.url}
-                  mode={mode}
-                />
-              </div>
-            ))
-          ) : (
-            <p className={`text-center text-${mode === 'light' ? 'dark' : 'light'}`}>No articles found.</p>
-          )}
+          {articles.map((element) => (
+            <div className="col-md-4" key={element.url}>
+              <Newsitems
+                title={element.title || 'No Title'}
+                description={element.description || 'No Description'}
+                imageUrl={element.urlToImage}
+                newsUrl={element.url}
+                mode={mode}
+              />
+            </div>
+          ))}
         </div>
-      )}
+      </InfiniteScroll>
     </div>
   );
 };
 
 Newsbox.defaultProps = {
-  catagory: 'general'
+  catagory: 'general',
 };
 
 export default Newsbox;

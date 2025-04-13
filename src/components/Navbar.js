@@ -1,25 +1,36 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Newsbox from './Newsbox';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-function App() {
-  const [mode, setMode] = useState('light');
-  const [progress, setProgress] = useState(0);
+const Navbar = ({ mode, setMode }) => {
+
+  const setColor = () => {
+    setMode(mode === 'light' ? 'dark' : 'light');
+  }
 
   return (
-    <Router>
-      <div className={`bg-${mode} text-${mode === 'light' ? 'dark' : 'light'}`}>
-        <Routes>
-          <Route path="/" element={<Newsbox catagory="general" mode={mode} setProgress={setProgress} />} />
-          <Route path="/sports" element={<Newsbox catagory="sports" mode={mode} setProgress={setProgress} />} />
-          <Route path="/business" element={<Newsbox catagory="business" mode={mode} setProgress={setProgress} />} />
-          <Route path="/technology" element={<Newsbox catagory="technology" mode={mode} setProgress={setProgress} />} />
-          <Route path="/health" element={<Newsbox catagory="health" mode={mode} setProgress={setProgress} />} />
-          <Route path="/science" element={<Newsbox catagory="science" mode={mode} setProgress={setProgress} />} />
-        </Routes>
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div className="container-fluid">
+        <Link className="navbar-brand" to="/">NewsViews</Link>
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav">
+            <li className="nav-item"><Link className="nav-link" to="/">Home</Link></li>
+            <li className="nav-item"><Link className="nav-link" to="/sports">Sports</Link></li>
+            <li className="nav-item"><Link className="nav-link" to="/business">Business</Link></li>
+            <li className="nav-item"><Link className="nav-link" to="/technology">Technology</Link></li>
+            <li className="nav-item"><Link className="nav-link" to="/health">Health</Link></li>
+            <li className="nav-item"><Link className="nav-link" to="/science">Science</Link></li>
+          </ul>
+        </div>
+        <div className="form-check form-switch">
+          <input className="form-check-input" type="checkbox" role="switch" id="darkMode" onChange={setColor} />
+          <label className="form-check-label text-light" htmlFor="flexSwitchCheckDefault">Enable Dark Mode</label>
+        </div>
       </div>
-    </Router>
+    </nav>
   );
 }
 
-export default App;
+export default Navbar;
