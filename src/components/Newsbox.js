@@ -45,7 +45,7 @@ const Newsbox = ({ category, mode, setProgress }) => {
 
   const fetchMoreData = async () => {
     const nextPage = page + 1;
-    const url = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=en&country=us&max=10&page=${nextPage}&apikey=${apiKey}`;
+    const url = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=en&country=us&max=10&page=${nextPage}&apikey=9cd9388c7c4aa28b811e09608fe9ddd3`;
 
     try {
       let data = await fetch(url);
